@@ -1,0 +1,52 @@
+services:
+  # 1. Dịch vụ Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: web_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /home/kien34/web_homework/nginx/conf.d:/etc/nginx/conf.d
+      - /home/kien34/web_homework/html:/usr/share/nginx/html
+    restart: always
+
+  # 2. Dịch vụ Node-RED
+  nodered:
+    image: nodered/node-red:latest
+    container_name: web_nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - /home/kien34/web_homework/nodered_data:/data
+    restart: always
+
+  # 3. Dịch vụ MariaDB Database
+  mariadb:
+    image: mariadb:latest
+    container_name: web_mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: web_db
+      MYSQL_USER: web_user
+      MYSQL_PASSWORD: userpassword
+    volumes:
+      - /home/kien34/web_homework/mariadb_data:/var/lib/mysql
+    restart: always
+
+  # 4. Dịch vụ Quản lý Database phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: web_phpmyadmin
+    environment:
+      PMA_HOST: mariadb
+    ports:
+      - "8080:80"
+    restart: always
+
+  # 5. Dịch vụ Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: web_cloudflared
+    command: tunnel --no-autoupdate run --token YOUR_CLOUDFLARE_TUNNEL_TOKEN
+    restart: always
